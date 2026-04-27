@@ -1,11 +1,10 @@
 "use client"
 
 import React, { useEffect, useState } from 'react'
-import { Apple, FacebookIcon, InstagramIcon, Linkedin, Play, Store, TwitterIcon, YoutubeIcon, } from "lucide-react";
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { AppleIcon, Bird, ChevronDown, ChevronUp, CircleFadingPlus, FanIcon, Link, Play, Store, Video } from "lucide-react";
 
 
 const faqs = [
@@ -284,7 +283,7 @@ export default function Hero() {
               <p className="mt-2 font-semibold">Get The Free App</p>
               <div className="flex space-x-2 mt-2">
                 <button className="flex items-center space-x-2 border p-2 rounded-lg shadow-md">
-                  <Apple className="h-5 w-5" />
+                  <AppleIcon className="h-5 w-5" />
                   <span>App Store</span>
                 </button>
                 <button className="flex items-center space-x-2 border p-2 rounded-lg shadow-md">
@@ -348,19 +347,19 @@ export default function Hero() {
 
 
                 <button className="flex items-center space-x-2 border p-2 rounded-lg shadow-md">
-                  <FacebookIcon className="h-5 w-5" />
+                  <FanIcon className="h-5 w-5" />
                 </button>
                 <button className="flex items-center space-x-2 border p-2 rounded-lg shadow-md">
-                  <TwitterIcon className="h-5 w-5" />
+                  <Bird className="h-5 w-5" />
                 </button>
                 <button className="flex items-center space-x-2 border p-2 rounded-lg shadow-md">
-                  <InstagramIcon className="h-5 w-5" />
+                  <CircleFadingPlus className="h-5 w-5" />
                 </button>
                 <button className="flex items-center space-x-2 border p-2 rounded-lg shadow-md">
-                  <Linkedin className="h-5 w-5" />
+                  <Link className="h-5 w-5" />
                 </button>
                 <button className="flex items-center space-x-2 border p-2 rounded-lg shadow-md">
-                  <YoutubeIcon className="h-5 w-5" />
+                  <Video className="h-5 w-5" />
                 </button>
               </div>
             </div>
