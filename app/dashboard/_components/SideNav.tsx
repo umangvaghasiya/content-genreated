@@ -1,13 +1,15 @@
 "use client"
 
-import { History, HomeIcon, Settings, Wallet2 } from 'lucide-react'
+import { History, HomeIcon, LogOut, Settings, Wallet2 } from 'lucide-react'
 import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation' 
 import React, { useEffect } from 'react'
 import UsageTrack from './UsageTrack'
+import { useAuth } from '@/app/(context)/AuthContext'
 
 function SideNav() {
     const router = useRouter(); 
+    const { logout } = useAuth();
     const MenuList=[
         {
             name:'Home',
@@ -52,6 +54,18 @@ function SideNav() {
                         <h2 className='text-xl text-yellow-50'>{menu.name}</h2>
                     </div>
                 ))}
+
+                <div 
+                    className={`flex gap-4 mb-2 p-3 
+                    hover:bg-red-500 hover:text-white rounded-lg cursor-pointer items-center`}
+                    onClick={() => {
+                        logout();
+                        router.push('/auth/login');
+                    }} 
+                >
+                    <LogOut className='h-7 w-7 text-red-200 '/>
+                    <h2 className='text-xl text-yellow-50'>Logout</h2>
+                </div>
             </div>
             <div className="absolute bottom-0 left-0 w-full">
                 <UsageTrack/>

@@ -5,91 +5,180 @@ import { AIOutput } from '@/utils/schema';
 import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button'; 
 import Templates from '@/app/(data)/Templates';
+import { useAuth } from '@/app/(context)/AuthContext';
+import { eq, desc, like, or } from 'drizzle-orm';
+import Image from 'next/image';
+import { Copy, Search, Eye, Clock, FileText } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+
+export interface HISTORY {
+    id: number,
+    formData: string,
+    aiResponse: string,
+    templateSlug: string,
+    createdBy: string,
+    createdAt: string,
+    words: string
+}
 
 function HistoryPage() {
-    const [historyData, setHistoryData] = useState<any[]>([]);
+    const { user } = useAuth();
+    const [historyData, setHistoryData] = useState<HISTORY[]>([]);
     const [loading, setLoading] = useState(true);
+    const [searchQuery, setSearchQuery] = useState('');
 
     useEffect(() => {
-        fetchHistory();
-    }, []);
-
-    const fetchHistory = async () => {
-        if (!db) {
-            console.warn("Database is not initialized. Skipping data fetch.");
-            setLoading(false);
-            return;
+        if (user) {
+            getHistory();
         }
+    }, [user]);
+
+    const getHistory = async () => {
+        setLoading(true);
+        const userEmail = user?.email || 'dummy@example.com';
+        
         try {
-            const result = await db.select().from(AIOutput);
+            if (!db) {
+                console.warn("Database not initialized.");
+                setLoading(false);
+                return;
+            }
+
+            const result: HISTORY[] = await db.select()
+                .from(AIOutput)
+                .where(eq(AIOutput.createdBy, userEmail))
+                .orderBy(desc(AIOutput.id));
+            
             setHistoryData(result);
         } catch (error) {
             console.error("Error fetching history:", error);
         } finally {
             setLoading(false);
         }
-    };
-
+    }
+    
     const getTemplateDetails = (slug: string) => {
         return Templates.find(template => template.slug === slug);
     };
 
-    if (loading) {
-        return <div className="mx-auto p-6 text-center text-white pt-32">Loading...</div>;
-    }
+    const copyToClipboard = (text: string) => {
+        navigator.clipboard.writeText(text);
+        alert('Copied to clipboard!');
+    };
+
+    const filteredHistory = historyData.filter(item => {
+        const template = getTemplateDetails(item.templateSlug);
+        const searchStr = searchQuery.toLowerCase();
+        return (
+            template?.name.toLowerCase().includes(searchStr) ||
+            item.aiResponse.toLowerCase().includes(searchStr)
+        );
+    });
 
     return (
-        <div className=" mx-auto p-6  rounded-lg shadow-lg pt-32 bg-slate-900 text-purple-200">
-            <h1 className="text-5xl font-bold mb-6 text-center ">History</h1>
-            
-            <div className="overflow-x-auto">
-                <table className="w-full h-screen rounded-md shadow-md">
-                    <thead className="bg-slate-950 text-white">
+        <div className="m-5 p-5 border rounded-lg bg-slate-900 shadow-xl min-h-[80vh]">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+                <div>
+                    <h2 className="font-bold text-3xl text-white flex items-center gap-2">
+                        <Clock className="text-purple-400" /> History
+                    </h2>
+                    <p className="text-gray-400">Review and manage your generated AI content</p>
+                </div>
+                
+                <div className="relative w-full md:w-80">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 h-4 w-4" />
+                    <Input 
+                        placeholder="Search history..." 
+                        className="pl-10 bg-slate-800 border-slate-700 text-white focus:ring-purple-500"
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                </div>
+            </div>
+
+            <div className="overflow-x-auto rounded-xl border border-gray-800 bg-slate-950/50">
+                <table className="w-full text-left text-gray-300">
+                    <thead className="bg-slate-800/50 text-gray-100 uppercase text-xs tracking-wider">
                         <tr>
-                            <th className="p-3 text-left">Template</th>
-                            <th className="p-3 text-left">AI Response</th>
-                            <th className="p-3 text-left">Date</th>
-                            <th className="p-3 text-left">Words</th>
-                            <th className="p-3 text-left">Copy</th>
+                            <th className="px-6 py-5 font-semibold">Template</th>
+                            <th className="px-6 py-5 font-semibold">Content Preview</th>
+                            <th className="px-6 py-5 font-semibold">Date</th>
+                            <th className="px-6 py-5 font-semibold">Words</th>
+                            <th className="px-6 py-5 font-semibold text-center">Actions</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        {historyData.map((entry: any, index) => {
-                            let formData = {};
-                            try {
-                                formData = JSON.parse(entry.formData);
-                            } catch (e) {
-                                console.error("Error parsing formData", e);
-                            }
-                            const wordCount = entry.aiResponse ? entry.aiResponse.split(' ').length : 0;
-                            const templateDetails = getTemplateDetails(entry.templateSlug || '');
-
-                            return (
-                                <tr key={index} className="border-b border-gray-300">
-                                    <td className="p-4 flex items-center space-x-4">
-                                        {templateDetails?.icon ? (
-                                            <img src={templateDetails.icon} alt={templateDetails.name} className="w-12 h-12 object-cover rounded-md" />
-                                        ) : (
-                                            <div className="w-12 h-12 bg-gray-200 rounded-md flex items-center justify-center">
-                                                <span className="text-gray-500">No Image</span>
-                                            </div>
-                                        )}
-                                        <span>{templateDetails?.name || 'No Name'}</span>
-                                    </td>
-                                    <td className="p-4 truncate max-w-xs">{entry.aiResponse}</td>
-                                    <td className="p-4">{entry.createdAt}</td>
-                                    <td className="p-4 text-center">{wordCount}</td>
-                                    <td className="p-4 text-center">
-                                        <Button
-                                            onClick={() => navigator.clipboard.writeText(entry.aiResponse)}
-                                            className="bg-blue-500 text-white hover:bg-blue-600"
-                                        >
-                                            Copy
-                                        </Button>
+                    <tbody className="divide-y divide-gray-800">
+                        {loading ? (
+                            Array.from({ length: 5 }).map((_, i) => (
+                                <tr key={i} className="animate-pulse">
+                                    <td colSpan={5} className="px-6 py-4">
+                                        <div className="h-8 bg-slate-800 rounded w-full"></div>
                                     </td>
                                 </tr>
-                            );
-                        })}
+                            ))
+                        ) : filteredHistory.length > 0 ? (
+                            filteredHistory.map((item, index) => {
+                                const template = getTemplateDetails(item.templateSlug);
+                                return (
+                                    <tr key={index} className="hover:bg-slate-800/30 transition-all group">
+                                        <td className="px-6 py-4">
+                                            <div className="flex items-center gap-3">
+                                                <div className="p-2 bg-slate-800 rounded-lg group-hover:bg-purple-900/20 transition-colors">
+                                                    {template?.icon && (
+                                                        <Image src={template.icon} alt={template.name} width={24} height={24} />
+                                                    )}
+                                                </div>
+                                                <span className="font-medium text-white">{template?.name || 'Unknown'}</span>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <p className="line-clamp-1 text-sm text-gray-400 max-w-md italic">
+                                                "{item.aiResponse}"
+                                            </p>
+                                        </td>
+                                        <td className="px-6 py-4 text-sm whitespace-nowrap">
+                                            <div className="flex items-center gap-2">
+                                                <Clock className="h-3 w-3 text-gray-500" />
+                                                {item.createdAt}
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4 text-sm">
+                                            <span className="px-2 py-1 bg-slate-800 rounded-md text-purple-300">
+                                                {item.words}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <div className="flex justify-center gap-2">
+                                                <Button 
+                                                    variant="ghost" 
+                                                    size="sm"
+                                                    className="text-purple-400 hover:text-purple-300 hover:bg-purple-900/30"
+                                                    onClick={() => copyToClipboard(item.aiResponse)}
+                                                >
+                                                    <Copy className="h-4 w-4" />
+                                                </Button>
+                                                <Button 
+                                                    variant="ghost" 
+                                                    size="sm"
+                                                    className="text-blue-400 hover:text-blue-300 hover:bg-blue-900/30"
+                                                    onClick={() => alert(item.aiResponse)}
+                                                >
+                                                    <Eye className="h-4 w-4" />
+                                                </Button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                )
+                            })
+                        ) : (
+                            <tr>
+                                <td colSpan={5} className="px-6 py-20 text-center">
+                                    <div className="flex flex-col items-center gap-3 text-gray-500">
+                                        <FileText className="h-12 w-12 opacity-20" />
+                                        <p>{searchQuery ? 'No matching results found.' : 'No history found yet.'}</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        )}
                     </tbody>
                 </table>
             </div>

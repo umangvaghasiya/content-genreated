@@ -1,12 +1,8 @@
 import React, { useEffect, useRef } from 'react'
 import '@toast-ui/editor/dist/toastui-editor.css';
-import dynamic from 'next/dynamic';
+import { Editor } from '@toast-ui/react-editor';
 import { Button } from '@/components/ui/button';
 import { Copy } from 'lucide-react';
-
-const Editor = dynamic(() => import('@toast-ui/react-editor').then(mod => mod.Editor), {
-  ssr: false,
-});
 
 interface props {
   aiOutput: string
@@ -14,13 +10,11 @@ interface props {
 
 function OutputSection({ aiOutput }: props) {
 
-const editorRef = useRef<any>(null);
+  const editorRef: any = useRef();
 
   useEffect(() => {
-    if (editorRef.current) {
-      const editorInstance = editorRef.current.getInstance()
-      editorInstance.setMarkdown(aiOutput)
-    }
+    const editorInstance = editorRef.current.getInstance()
+    editorInstance.setMarkdown(aiOutput)
   }, [aiOutput])
 
   return (
@@ -36,7 +30,7 @@ const editorRef = useRef<any>(null);
         height="450px"
         initialEditType="wysiwyg"
         useCommandShortcut={true}
-        onChange={() => editorRef.current && console.log(editorRef.current.getInstance().getMarkdown())}
+        onChange={() => console.log(editorRef.current.getInstance().getMarkdown())}
       />
 
     </div>

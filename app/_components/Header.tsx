@@ -1,14 +1,14 @@
 "use client"
 
 import { Button } from '@/components/ui/button'
-import { SignInButton, UserButton, useUser } from '@clerk/nextjs'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import React from 'react'
+import { useAuth } from '../(context)/AuthContext'
 
 function Header() {
-  const { isSignedIn } = useUser();
+  const { isSignedIn, login, logout, user } = useAuth();
   const path = usePathname();
 
   return  (
@@ -34,12 +34,15 @@ function Header() {
             <Link href={'/dashboard'}>
               <Button className='bg-purple-500  hover:bg-purple-500'>DashBoard</Button>
             </Link>
-            <UserButton />
+            <div className='flex items-center gap-2'>
+               {user?.imageUrl && <Image src={user.imageUrl} width={35} height={35} alt="user" className='rounded-full' />}
+               <Button variant='ghost' onClick={logout} className="text-white">Logout</Button>
+            </div>
           </div>
         ) : (
-          <SignInButton >
+          <Link href={'/auth/login'}>
             <Button>Get Started</Button>
-          </SignInButton>
+          </Link>
         )}
 
       </div>

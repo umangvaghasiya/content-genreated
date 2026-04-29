@@ -1,10 +1,11 @@
 "use client"
 
 import React, { useEffect, useState } from 'react'
+import { Apple, Globe, Mail, Share2, Play, Store, MessageCircle, Video, } from "lucide-react";
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 
-import { AppleIcon, Bird, ChevronDown, ChevronUp, CircleFadingPlus, FanIcon, Link, Play, Store, Video } from "lucide-react";
+import { ChevronDown, ChevronUp } from "lucide-react";
 
 
 const faqs = [
@@ -283,7 +284,7 @@ export default function Hero() {
               <p className="mt-2 font-semibold">Get The Free App</p>
               <div className="flex space-x-2 mt-2">
                 <button className="flex items-center space-x-2 border p-2 rounded-lg shadow-md">
-                  <AppleIcon className="h-5 w-5" />
+                  <Apple className="h-5 w-5" />
                   <span>App Store</span>
                 </button>
                 <button className="flex items-center space-x-2 border p-2 rounded-lg shadow-md">
@@ -347,16 +348,16 @@ export default function Hero() {
 
 
                 <button className="flex items-center space-x-2 border p-2 rounded-lg shadow-md">
-                  <FanIcon className="h-5 w-5" />
+                  <Globe className="h-5 w-5" />
                 </button>
                 <button className="flex items-center space-x-2 border p-2 rounded-lg shadow-md">
-                  <Bird className="h-5 w-5" />
+                  <Mail className="h-5 w-5" />
                 </button>
                 <button className="flex items-center space-x-2 border p-2 rounded-lg shadow-md">
-                  <CircleFadingPlus className="h-5 w-5" />
+                  <Share2 className="h-5 w-5" />
                 </button>
                 <button className="flex items-center space-x-2 border p-2 rounded-lg shadow-md">
-                  <Link className="h-5 w-5" />
+                  <MessageCircle className="h-5 w-5" />
                 </button>
                 <button className="flex items-center space-x-2 border p-2 rounded-lg shadow-md">
                   <Video className="h-5 w-5" />

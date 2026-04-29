@@ -4,14 +4,14 @@ import React, { useState, useEffect, useContext } from 'react';
 import { TotalUsageContext } from '@/app/(context)/TotalUsageContext';
 import { UpdateCreditUsageContext } from '@/app/(context)/UpdateCreditUsageContext';
 import { Button } from '@/components/ui/button';
-import { useUser } from '@clerk/nextjs';
+import { useAuth } from '@/app/(context)/AuthContext';
 import { db } from '@/utils/db';
 import { AIOutput } from '@/utils/schema';
 import { eq } from 'drizzle-orm';
 import Link from 'next/link';
 
 function UsageTrack() {
-  const { user } = useUser();
+  const { user } = useAuth();
   const { totalUsage, setTotalUsage } = useContext(TotalUsageContext);
   const { updateCreditUsage, setUpdateCreditUsage } = useContext(UpdateCreditUsageContext);
 
@@ -24,12 +24,15 @@ function UsageTrack() {
   }, [updateCreditUsage, user]);
 
   const GetData = async () => {
+    {/* @ts-ignore */ }
+    const userEmail = user?.primaryEmailAddress?.emailAddress || 'dummy@example.com';
+    
     if (!db) {
-      console.warn("Database is not initialized. Skipping data fetch.");
+      console.warn("Database not initialized. Skipping GetData.");
       return;
     }
-    {/* @ts-ignore */ }
-    const result: History[] = await db.select().from(AIOutput).where(eq(AIOutput.createdBy, user?.primaryEmailAddress?.emailAddress));
+
+    const result: History[] = await db.select().from(AIOutput).where(eq(AIOutput.createdBy, userEmail));
     GetTotalUsage(result);
   };
 

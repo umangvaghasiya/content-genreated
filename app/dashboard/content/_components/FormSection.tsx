@@ -31,8 +31,15 @@ function FormSection({ selectedTemplate , userFormInput, loading}: PROPS) {
 
     return (
         <div className='p-5 shadow-md border rounded-lg'>
-            {/* @ts-ignore */}
-            {selectedTemplate?.icon && <Image src={selectedTemplate.icon} alt='logo' width={70} height={70} />}
+            {selectedTemplate?.icon && (
+                <Image 
+                    src={selectedTemplate.icon} 
+                    alt='logo' 
+                    width={70} 
+                    height={70} 
+                    style={{ width: 'auto', height: 'auto' }}
+                />
+            )}
             <h2 className='font-bold text-2xl mb-2 text-primary'>{selectedTemplate?.name}</h2>
             <p className='text-gray-300 text-sm'>{selectedTemplate?.desc}</p>
 

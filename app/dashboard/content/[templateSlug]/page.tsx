@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useContext, useState, use } from 'react'
+import React, { useContext, useState } from 'react'
 import FormSection from '../_components/FormSection'
 import OutputSection from '../_components/OutputSection'
 import { TEMPLATE } from '../../_components/TemplateListSection'
@@ -11,7 +11,7 @@ import Link from 'next/link'
 import { chatSession } from '@/utils/AiModel'
 import { db } from '@/utils/db'
 import { AIOutput } from '@/utils/schema'
-import { useUser } from '@clerk/nextjs'
+import { useAuth } from '@/app/(context)/AuthContext'
 import moment from 'moment'
 import { TotalUsageContext } from '@/app/(context)/TotalUsageContext'
 import { useRouter } from 'next/navigation'
@@ -25,14 +25,14 @@ interface PROPS {
 }
 
 function CreateNewContent(props: PROPS) {
-    const params = use(props.params);
+    const params = React.use(props.params);
     const selectedTemplate: TEMPLATE | undefined = Templates?.find((item) => item.slug == params.templateSlug)
 
     const [loading, setLoading] = useState(false);
 
     const [aiOutput, setAiOutput] = useState<string>('');
 
-    const { user } = useUser();
+    const { user } = useAuth();
     const router = useRouter()
     const { totalUsage, setTotalUsage } = useContext(TotalUsageContext)
     const { updateCreditUsage, setUpdateCreditUsage } = useContext(UpdateCreditUsageContext)
@@ -60,21 +60,24 @@ function CreateNewContent(props: PROPS) {
     }
 
     const SaveInDb = async (formData: any, slug: string | undefined, aiResp: string | undefined) => {
-        if (!db) {
-            console.warn("Database is not initialized. Skipping data save.");
-            return;
-        }
-        if (!user?.primaryEmailAddress?.emailAddress || !slug || !aiResp) {
+        const userEmail = user?.email || 'dummy@example.com';
+        if (!slug || !aiResp) {
             console.error("Missing required fields for DB insert");
             return;
         }
 
+        if (!db) {
+            console.warn("Database not initialized. Skipping SaveInDb.");
+            return;
+        }
+    
         await db.insert(AIOutput).values({
             formData: JSON.stringify(formData), // Ensure it's a string
             templateSlug: slug,
             aiResponse: aiResp,
-            createdBy: user.primaryEmailAddress.emailAddress, // Ensure it's defined
+            createdBy: userEmail, // Ensure it's defined
             createdAt: moment().format('DD/MM/yyyy'),
+            words: aiResp.split(/\s+/).filter(word => word.length > 0).length.toString()
         });
     };
     

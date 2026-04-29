@@ -1,11 +1,8 @@
 import { ReactNode } from "react"; // Import ReactNode for type safety
-import { Inter, Geist } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import Header from "./_components/Header";
-import { ClerkProvider } from "@clerk/nextjs";
-import { cn } from "@/lib/utils";
-
-const geist = Geist({subsets:['latin'],variable:'--font-sans'});
+import { AuthProvider } from "./(context)/AuthContext";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -16,13 +13,13 @@ export const metadata = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <ClerkProvider>
-      <html lang="en" data-theme="light" className={cn("font-sans", geist.variable)}>
+    <AuthProvider>
+      <html lang="en" data-theme="light">
         <body className={inter.className}>
           <Header />
           {children}
         </body>
       </html>
-    </ClerkProvider>
+    </AuthProvider>
   );
 }

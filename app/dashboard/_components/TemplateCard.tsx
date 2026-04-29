@@ -22,7 +22,7 @@ function TemplateCard(item: TEMPLATE) {
       <Link href={'/dashboard/content/' + item?.slug} onClick={handleClick}>
         <div className="p-7 shadow-lg rounded-2xl border bg-slate-950 text-purple-200 flex flex-col gap-4 cursor-pointer hover:scale-105 transition-all">
           <div className="flex gap-4">
-            <Image src={item.icon} alt="icon" width={40} height={40} />
+            <Image src={item.icon} alt="icon" width={40} height={40} style={{ width: 'auto', height: 'auto' }} />
             <h2 className="font-medium text-2xl">{item.name}</h2>
           </div>
           <p className="line-clamp-4">{item.desc}</p>
